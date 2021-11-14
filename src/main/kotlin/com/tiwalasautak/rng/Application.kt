@@ -34,7 +34,7 @@ class Application(private val now: ZonedDateTime) {
             val initialCommand = if (args.hasSwitch("auto")) {
                 Command(type = CommandType.AUTO)
             } else {
-                Command(type = CommandType.INVALID)
+                Command(type = CommandType.INITIAL)
             }
             val withDelay = args.hasSwitch("delay")
             val initialFunds = args.hasParameter("funds")?.toBigDecimal()?.twoDecimals() ?: 20.twoDecimals()
@@ -65,6 +65,9 @@ class Application(private val now: ZonedDateTime) {
             lastCommand = command
 
             val numbers = when (command.type) {
+                CommandType.INITIAL, CommandType.REPEAT -> {
+                    lastNumbersPicked
+                }
                 CommandType.NUMBERS -> {
                     if (command.numbers?.count() in 4..6) {
                         lastNumbersPicked = command.numbers ?: listOf()

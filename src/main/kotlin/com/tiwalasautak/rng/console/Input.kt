@@ -10,18 +10,25 @@ class Input {
         val input = readLine()?.trim()?.lowercase()
 
         input?.let { nonNullInput ->
-            return when(nonNullInput) {
-                "auto" -> {
+            return when {
+                nonNullInput.isEmpty() -> {
+                    Command(type = CommandType.REPEAT)
+                }
+                nonNullInput == "auto" -> {
                     Command(type = CommandType.AUTO)
                 }
-                "quit" -> {
+                nonNullInput == "quit" -> {
                     Command(type = CommandType.QUIT)
                 }
-                else -> {
+                "^\\d+\\s?(,\\s?\\d+\\s?)*$".toRegex().matches(nonNullInput) -> {
                     Command(
                         type = CommandType.NUMBERS,
-                        numbers = nonNullInput.split(",").mapNotNull { it.trim().toIntOrNull() }
+                        numbers = nonNullInput.split(",").mapNotNull { it.trim().toIntOrNull() }.distinct()
+                            .filter { it in 1..80 }
                     )
+                }
+                else -> {
+                    Command(type = CommandType.INVALID)
                 }
             }
         }
