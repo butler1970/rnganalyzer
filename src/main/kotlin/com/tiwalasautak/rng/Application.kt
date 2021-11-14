@@ -39,18 +39,19 @@ class Application(private val now: ZonedDateTime) {
                 Command(type = CommandType.INVALID)
             }
             val withDelay = args.hasSwitch("delay")
+            val initialFunds = args.hasParameter("funds")?.toBigDecimal()?.twoDecimals() ?: 20.twoDecimals()
 
-            Application(seedDateTime).run(initialCommand, withDelay, startingNumbers)
+            Application(seedDateTime).run(initialCommand, withDelay, initialFunds, startingNumbers)
         }
     }
 
-    fun run(initialCommand: Command, withDelay: Boolean, startingNumbers: List<Int>) {
+    fun run(initialCommand: Command, withDelay: Boolean, initialFunds: BigDecimal, startingNumbers: List<Int>) {
         var iterations = 0
         var lastNumbersPicked = startingNumbers
         var lastCommand = initialCommand
 
         val simulator = GameSimulator(
-            initialFunds = 20.twoDecimals(),
+            initialFunds = initialFunds,
             now = now,
             rngAnalyzer = rngAnalyzer,
             render = render
@@ -105,7 +106,7 @@ class Application(private val now: ZonedDateTime) {
             iterations++
 
             runBlocking {
-                if (withDelay) delay(1000)
+                if (withDelay) delay(100)
             }
 
         } while (gameState == GameState.FUNDS_AVAILABLE)
