@@ -19,7 +19,7 @@ import java.time.ZonedDateTime
 import kotlin.system.exitProcess
 
 class Application(private val now: ZonedDateTime) {
-    private val render: Render = Render()
+    private val render: Render = Render(1, 80, 10)
     private val rngAnalyzer: RNGAnalyzer = RNGAnalyzer(now = now)
     private val input: Input = Input()
 
@@ -88,21 +88,17 @@ class Application(private val now: ZonedDateTime) {
                 }
             }
 
-            val gameState = simulator.nextBet(numbers ?: lastNumbersPicked, BigDecimal.valueOf(.25))
+            val gameState = simulator.nextBet(numbers = numbers ?: lastNumbersPicked, bet = .25.twoDecimals())
 
             when (gameState) {
                 GameState.WINNER -> {
-                    val cost = (iterations * .25).twoDecimals()
-
-                    println("Winner!  Found winning numbers after $iterations iteration(s)")
-                    println("Estimated cost = \$$cost")
-                    println("Funds remaining \$${simulator.fundsRemaining()}")
+                    render.renderWinnerMessage(simulator.fundsRemaining(), iterations)
                 }
                 GameState.FUNDS_AVAILABLE -> {
-                    println("Funds remaining \$${simulator.fundsRemaining()}")
+                    render.renderFundsRemaining(simulator.fundsRemaining())
                 }
                 GameState.GAME_OVER -> {
-                    println("Game Over!  After $iterations iteration(s)")
+                    render.renderGameOver(iterations)
                 }
             }
 

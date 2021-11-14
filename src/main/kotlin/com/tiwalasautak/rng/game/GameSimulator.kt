@@ -27,12 +27,12 @@ class GameSimulator(
 
         val selections = rngAnalyzer.generateSelections(1, 80, 20)
         val crossSection = rngAnalyzer.crossSection(numbers, selections)
+        val payout = calculatePayout(numbers.count(), crossSection)
 
-        calculateRemainingFunds(numbers.count(), crossSection)
+        updateFunds(payout)
 
-        println("\n")
         render.populateGridAndRender(numbers, selections)
-        render.renderCrossSection(numbers.count(), crossSection)
+        render.renderCrossSection(numbers.count(), crossSection, payout)
         render.renderNumbers(numbers)
         render.renderSelections(selections)
         render.renderNumbersPicked(rngAnalyzer.getNumbersPicked())
@@ -57,16 +57,17 @@ class GameSimulator(
         return funds.twoDecimals() == BigDecimal.ZERO.twoDecimals()
     }
 
-    private fun calculateRemainingFunds(numbers: Int, crossSection: Int): BigDecimal {
-        val payout = when (numbers) {
+    private fun calculatePayout(numbers: Int, crossSection: Int): BigDecimal {
+        return when (numbers) {
             4 -> payouts.calculatePayoutFor4Spot(crossSection)
             5 -> payouts.calculatePayoutFor5Spot(crossSection)
             6 -> payouts.calculatePayoutFor6Spot(crossSection)
             else -> throw Exception("$numbers not supported!")
-        }
+        }.twoDecimals()
+    }
 
+    private fun updateFunds(payout: BigDecimal): BigDecimal {
         funds += payout
-
         return funds
     }
 }
