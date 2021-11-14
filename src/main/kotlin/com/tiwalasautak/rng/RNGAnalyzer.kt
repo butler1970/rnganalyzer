@@ -1,13 +1,9 @@
 package com.tiwalasautak.rng
 
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
-class RNGAnalyzer(
-    now: LocalDateTime = LocalDateTime.now(),
-    zoneOffset: ZoneOffset = ZoneOffset.of("-08:00")
-) {
-    private val rng: RandomNumberGenerator = RandomNumberGenerator(now = now, zoneOffset = zoneOffset)
+class RNGAnalyzer(now: ZonedDateTime = ZonedDateTime.now()) {
+    private val rng: RandomNumberGenerator = RandomNumberGenerator(now = now)
     private val numbersPicked = mutableMapOf<Int, Int>()
 
     fun generateSelections(from: Int, to: Int, numberOfSelections: Int): List<Int> {

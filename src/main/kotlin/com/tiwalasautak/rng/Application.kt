@@ -8,18 +8,19 @@ import com.tiwalasautak.rng.game.GameSimulator
 import com.tiwalasautak.rng.game.GameState
 import com.tiwalasautak.rng.game.Render
 import com.tiwalasautak.rng.util.hasParameter
+import com.tiwalasautak.rng.util.hasSwitch
 import com.tiwalasautak.rng.util.twoDecimals
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import kotlin.system.exitProcess
 
-class Application(
-    now: LocalDateTime ,
-    zoneOffset: ZoneOffset
-) {
+class Application(private val now: ZonedDateTime) {
     private val render: Render = Render()
-    private val rngAnalyzer: RNGAnalyzer = RNGAnalyzer(now = now, zoneOffset = zoneOffset)
+    private val rngAnalyzer: RNGAnalyzer = RNGAnalyzer(now = now)
     private val input: Input = Input()
 
     companion object {
@@ -31,20 +32,26 @@ class Application(
                 args.hasParameter("numbers")?.let { numbers -> numbers.split(",").mapNotNull { it.toIntOrNull() } }
                     ?: defaultStartingNumbers
 
-            val seedDateTime = args.hasParameter("seed")?.let { LocalDateTime.parse(it) } ?: LocalDateTime.now()
-            val seedZoneOffset = args.hasParameter("offset")?.let { ZoneOffset.of(it) } ?: ZoneOffset.of("-08:00")
+            val seedDateTime = args.hasParameter("seed")?.let { ZonedDateTime.parse(it) } ?: ZonedDateTime.now()
+            val initialCommand = if (args.hasSwitch("auto")) {
+                Command(type = CommandType.AUTO)
+            } else {
+                Command(type = CommandType.INVALID)
+            }
+            val withDelay = args.hasSwitch("delay")
 
-            Application(seedDateTime, seedZoneOffset).run(startingNumbers)
+            Application(seedDateTime).run(initialCommand, withDelay, startingNumbers)
         }
     }
 
-    fun run(startingNumbers: List<Int>) {
+    fun run(initialCommand: Command, withDelay: Boolean, startingNumbers: List<Int>) {
         var iterations = 0
         var lastNumbersPicked = startingNumbers
-        var lastCommand = Command(type = CommandType.INVALID)
+        var lastCommand = initialCommand
 
         val simulator = GameSimulator(
             initialFunds = 20.twoDecimals(),
+            now = now,
             rngAnalyzer = rngAnalyzer,
             render = render
         )
@@ -100,6 +107,10 @@ class Application(
             }
 
             iterations++
+
+            runBlocking {
+                if (withDelay) delay(1000)
+            }
 
         } while (gameState == GameState.FUNDS_AVAILABLE)
     }

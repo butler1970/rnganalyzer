@@ -4,9 +4,11 @@ import com.tiwalasautak.rng.RNGAnalyzer
 import com.tiwalasautak.rng.ansi.AnsiCursor
 import com.tiwalasautak.rng.util.twoDecimals
 import java.math.BigDecimal
+import java.time.ZonedDateTime
 
 class GameSimulator(
     initialFunds: BigDecimal = 20.twoDecimals(),
+    private val now: ZonedDateTime,
     private val rngAnalyzer: RNGAnalyzer,
     private val render: Render
 ) {
@@ -19,6 +21,7 @@ class GameSimulator(
 
     fun nextBet(numbers: List<Int>, bet: BigDecimal): GameState {
         print(AnsiCursor.clearScreen)
+        println("\n$now")
 
         placeBet(bet)
 

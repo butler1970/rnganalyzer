@@ -1,14 +1,10 @@
 package com.tiwalasautak.rng
 
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import kotlin.random.Random
 
-class RandomNumberGenerator(
-    now: LocalDateTime = LocalDateTime.now(),
-    zoneOffset: ZoneOffset = ZoneOffset.of("-08:00")
-) {
-    private val rng: Random = Random(now.toEpochSecond(zoneOffset))
+class RandomNumberGenerator(now: ZonedDateTime = ZonedDateTime.now()) {
+    private val rng: Random = Random(now.toEpochSecond())
 
     fun generateSelections(from: Int, to: Int, numberOfSelections: Int): List<Int> {
         val result = mutableListOf<Int>()
