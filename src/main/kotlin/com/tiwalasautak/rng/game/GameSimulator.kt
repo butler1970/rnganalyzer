@@ -1,20 +1,20 @@
-package com.tiwalasautak.rng
+package com.tiwalasautak.rng.game
 
+import com.tiwalasautak.rng.RNGAnalyzer
 import com.tiwalasautak.rng.ansi.AnsiCursor
 import com.tiwalasautak.rng.util.twoDecimals
 import java.math.BigDecimal
 
 class GameSimulator(
     initialFunds: BigDecimal = 20.twoDecimals(),
-    private val winningNumbers: List<Int>,
     private val rngAnalyzer: RNGAnalyzer,
     private val render: Render
 ) {
     private var funds = initialFunds
     private var payouts: Payouts = Payouts()
 
-    enum class GameState {
-        GAME_OVER, FUNDS_AVAILABLE, WINNER
+    init {
+        print(AnsiCursor.clearScreen)
     }
 
     fun nextBet(numbers: List<Int>, bet: BigDecimal): GameState {

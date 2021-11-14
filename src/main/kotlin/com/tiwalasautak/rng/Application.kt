@@ -1,7 +1,11 @@
 package com.tiwalasautak.rng
 
-import com.tiwalasautak.rng.ansi.AnsiCursor
+import com.tiwalasautak.rng.console.Command
+import com.tiwalasautak.rng.console.CommandType
 import com.tiwalasautak.rng.console.Input
+import com.tiwalasautak.rng.game.GameSimulator
+import com.tiwalasautak.rng.game.GameState
+import com.tiwalasautak.rng.game.Render
 import com.tiwalasautak.rng.util.twoDecimals
 import java.math.BigDecimal
 
@@ -22,19 +26,16 @@ class Application() {
     fun run() {
         var iterations = 0
         var lastNumbersPicked = winningNumbers
-        var lastCommand = Input.Command(type = Input.CommandType.INVALID)
+        var lastCommand = Command(type = CommandType.INVALID)
 
         val simulator = GameSimulator(
             initialFunds = 20.twoDecimals(),
-            winningNumbers = winningNumbers,
             rngAnalyzer = rngAnalyzer,
             render = render
         )
 
-        print(AnsiCursor.clearScreen)
-
         do {
-            val command = if (lastCommand.type != Input.CommandType.LET_IT_RIDE) {
+            val command = if (lastCommand.type != CommandType.AUTO) {
                 input.getInput(lastNumbersPicked)
             } else {
                 lastCommand
@@ -43,7 +44,7 @@ class Application() {
             lastCommand = command
 
             val numbers = when(command.type) {
-                Input.CommandType.LIST_OF_NUMBERS -> {
+                CommandType.NUMBERS -> {
                     if (command.numbers?.count() in 4..6) {
                         lastNumbersPicked = command.numbers ?: listOf()
                         command.numbers
@@ -51,13 +52,13 @@ class Application() {
                         lastNumbersPicked
                     }
                 }
-                Input.CommandType.LET_IT_RIDE -> {
+                CommandType.AUTO -> {
                     lastNumbersPicked
                 }
-                Input.CommandType.QUIT -> {
+                CommandType.QUIT -> {
                     break
                 }
-                Input.CommandType.INVALID -> {
+                CommandType.INVALID -> {
                     println("Invalid command! Exiting now.")
                     break
                 }
@@ -66,23 +67,23 @@ class Application() {
             val gameState = simulator.nextBet(numbers ?: lastNumbersPicked, BigDecimal.valueOf(.25))
 
             when (gameState) {
-                GameSimulator.GameState.WINNER -> {
+                GameState.WINNER -> {
                     val cost = (iterations * .25).twoDecimals()
 
                     println("Winner!  Found winning numbers after $iterations iteration(s)")
                     println("Estimated cost = \$$cost")
                     println("Funds remaining \$${simulator.fundsRemaining()}")
                 }
-                GameSimulator.GameState.FUNDS_AVAILABLE -> {
+                GameState.FUNDS_AVAILABLE -> {
                     println("Funds remaining \$${simulator.fundsRemaining()}")
                 }
-                GameSimulator.GameState.GAME_OVER -> {
+                GameState.GAME_OVER -> {
                     println("\n\nGame Over!  After $iterations iteration(s)")
                 }
             }
 
             iterations++
 
-        } while (gameState == GameSimulator.GameState.FUNDS_AVAILABLE)
+        } while (gameState == GameState.FUNDS_AVAILABLE)
     }
 }

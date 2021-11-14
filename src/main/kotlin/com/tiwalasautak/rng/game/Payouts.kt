@@ -1,4 +1,4 @@
-package com.tiwalasautak.rng
+package com.tiwalasautak.rng.game
 
 import java.math.BigDecimal
 

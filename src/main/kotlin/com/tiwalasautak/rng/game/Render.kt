@@ -1,4 +1,4 @@
-package com.tiwalasautak.rng
+package com.tiwalasautak.rng.game
 
 import com.tiwalasautak.rng.ansi.AnsiCursor
 import com.tiwalasautak.rng.grid.Grid
