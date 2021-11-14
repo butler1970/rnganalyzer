@@ -1,4 +1,4 @@
-package com.tiwalasautak.rng.grid
+package com.tiwalasautak.rng.game
 
 import com.tiwalasautak.rng.ansi.AnsiColor.bgBlue
 import com.tiwalasautak.rng.ansi.AnsiColor.bgGreen
@@ -11,12 +11,11 @@ import com.tiwalasautak.rng.ansi.AnsiColor.on
 import com.tiwalasautak.rng.ansi.AnsiStyle.bold
 
 data class GridCell(
-    val index: Int,
+    val index: Int = 0,
     var selected: Boolean = false,
     var picked: Boolean = false
 ) {
     companion object {
-        private val columnWidth = 4
         private val styleDefault = (fgWhite on bgBlue) + bold
         private val stylePicked = (fgBlack on bgRed) + bold
         private val styleSelected = (fgBlack on bgYellow) + bold

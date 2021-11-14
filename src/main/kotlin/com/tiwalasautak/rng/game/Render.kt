@@ -1,6 +1,5 @@
 package com.tiwalasautak.rng.game
 
-import com.tiwalasautak.rng.grid.GameGrid
 import com.tiwalasautak.rng.util.twoDecimals
 import java.math.BigDecimal
 

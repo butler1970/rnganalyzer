@@ -1,29 +1,18 @@
 package com.tiwalasautak.rng.grid
 
-import com.tiwalasautak.rng.table.Table
-
 abstract class AbstractGrid<T>(
     private val start: Int,
     private val end: Int,
     private val rowSize: Int
 ) {
-    private val grid: List<List<T>> = buildGrid()
+    protected fun getGridData(number: Int, grid: List<List<T>>): T {
+        val coordinates = GridCoordinates(rowSize)
+        val point = coordinates.linearAddressToPointOnGrid(number)
 
-    fun renderGrid() {
-        renderGrid(grid)
+        return grid[point.y][point.x]
     }
 
-    private fun renderGrid(grid: List<List<T>>) {
-        val table = Table()
-
-        grid.forEach { gridRow ->
-            table.addRow(gridRow.map { it.toString() }.toTypedArray())
-        }
-
-        println(table.buildTable())
-    }
-
-    private fun buildGrid(): List<List<T>> {
+    protected fun buildGrid(): List<List<T>> {
         return buildGrid(start, end, rowSize)
     }
 
@@ -45,13 +34,6 @@ abstract class AbstractGrid<T>(
         }
 
         return result
-    }
-
-    protected fun getGridData(number: Int): T {
-        val coordinates = GridCoordinates(rowSize)
-        val point = coordinates.linearAddressToPointOnGrid(number)
-
-        return grid[point.y][point.x]
     }
 
     abstract fun buildGridCell(index: Int): T
