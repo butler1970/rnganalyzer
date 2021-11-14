@@ -10,7 +10,7 @@ import com.tiwalasautak.rng.ansi.AnsiColor.fgWhite
 import com.tiwalasautak.rng.ansi.AnsiColor.on
 import com.tiwalasautak.rng.ansi.AnsiStyle.bold
 
-data class GridCell(
+data class GameGridCell(
     val index: Int = 0,
     var selected: Boolean = false,
     var picked: Boolean = false
