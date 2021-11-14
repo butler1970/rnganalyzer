@@ -37,10 +37,11 @@ class Render {
             listOf(Pair(it.key, it.value))
         }.sortedByDescending {
             it.second
-        }.take(
-            numbersSelected
-        ).forEach {
-            println("${it.first} = ${it.second}")
+        }.chunked(10).forEach { listOfPairs ->
+            listOfPairs.forEach {
+                print("${it.first} = ${it.second}".padEnd(10, ' '))
+            }
+            print("\n")
         }
     }
 
