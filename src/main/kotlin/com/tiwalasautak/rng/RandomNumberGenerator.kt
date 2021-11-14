@@ -8,9 +8,8 @@ class RandomNumberGenerator {
     private val rng: Random
 
     init {
-//        val now = LocalDateTime.parse("2021-07-15T19:00:00")
-        val now = LocalDateTime.now()
-        val seed = now.toEpochSecond(ZoneOffset.UTC)
+        val now = LocalDateTime.now().plusHours(12)
+        val seed = now.toEpochSecond(ZoneOffset.of("-08:00"))
 
         println("Seed = $seed\n\n")
 

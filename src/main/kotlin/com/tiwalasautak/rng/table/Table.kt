@@ -21,8 +21,8 @@ class Table {
             .setCellStyle(
                 CellStyle.Builder()
                     .setBorder(true)
-                    .setPaddingLeft(2)
-                    .setPaddingRight(2)
+                    .setPaddingLeft(0)
+                    .setPaddingRight(0)
                     .build()
             )
             .setTableStyle(TableStyle { borderStyle = BorderStyle.Solid })

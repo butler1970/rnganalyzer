@@ -58,7 +58,7 @@ class Grid(
     }
 
     private fun getGridData(number: Int): GridCell {
-        val coordinates = Coordinates(rowSize)
+        val coordinates = GridCoordinates(rowSize)
         val point = coordinates.linearAddressToPointOnGrid(number)
 
         return grid[point.y][point.x]

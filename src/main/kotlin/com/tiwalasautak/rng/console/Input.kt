@@ -7,10 +7,10 @@ class Input {
         print(AnsiCursor.topLeft)
         print("Pick numbers [${lastNumbersPicked.joinToString()}]:")
 
-        val input = readLine()
+        val input = readLine()?.trim()?.lowercase()
 
         input?.let { nonNullInput ->
-            return when(nonNullInput.lowercase()) {
+            return when(nonNullInput) {
                 "auto" -> {
                     Command(type = CommandType.AUTO)
                 }

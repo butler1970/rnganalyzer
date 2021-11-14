@@ -1,6 +1,6 @@
 package com.tiwalasautak.rng.grid
 
-class Coordinates(private val rowSize: Int) {
+class GridCoordinates(private val rowSize: Int) {
     data class Point2D(
         val x: Int,
         val y: Int
