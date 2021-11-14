@@ -18,7 +18,7 @@ class GameSimulator(
     }
 
     fun nextBet(numbers: List<Int>, bet: BigDecimal): GameState {
-        render.renderNumbers(numbers)
+        print(AnsiCursor.clearScreen)
 
         placeBet(bet)
 
@@ -27,9 +27,12 @@ class GameSimulator(
 
         calculateRemainingFunds(numbers.count(), crossSection)
 
+        println("\n")
         render.populateGridAndRender(numbers, selections)
         render.renderCrossSection(numbers.count(), crossSection)
-        render.renderNumbersPicked(rngAnalyzer.getNumbersPicked(), numbers.count())
+        render.renderNumbers(numbers)
+        render.renderSelections(selections)
+        render.renderNumbersPicked(rngAnalyzer.getNumbersPicked())
 
         return when {
             crossSection == numbers.count() -> GameState.WINNER

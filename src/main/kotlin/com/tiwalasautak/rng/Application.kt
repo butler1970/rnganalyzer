@@ -1,31 +1,46 @@
 package com.tiwalasautak.rng
 
+import com.tiwalasautak.rng.ansi.AnsiCursor
 import com.tiwalasautak.rng.console.Command
 import com.tiwalasautak.rng.console.CommandType
 import com.tiwalasautak.rng.console.Input
 import com.tiwalasautak.rng.game.GameSimulator
 import com.tiwalasautak.rng.game.GameState
 import com.tiwalasautak.rng.game.Render
+import com.tiwalasautak.rng.util.hasParameter
 import com.tiwalasautak.rng.util.twoDecimals
 import java.math.BigDecimal
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import kotlin.system.exitProcess
 
-class Application() {
+class Application(
+    now: LocalDateTime ,
+    zoneOffset: ZoneOffset
+) {
     private val render: Render = Render()
-    private val rngAnalyzer: RNGAnalyzer = RNGAnalyzer()
+    private val rngAnalyzer: RNGAnalyzer = RNGAnalyzer(now = now, zoneOffset = zoneOffset)
     private val input: Input = Input()
 
     companion object {
-        private val winningNumbers = listOf(1, 2, 3, 4, 5)
+        private val defaultStartingNumbers = listOf(1, 2, 3, 4, 5)
 
         @JvmStatic
         fun main(args: Array<String>) {
-            Application().run()
+            val startingNumbers =
+                args.hasParameter("numbers")?.let { numbers -> numbers.split(",").mapNotNull { it.toIntOrNull() } }
+                    ?: defaultStartingNumbers
+
+            val seedDateTime = args.hasParameter("seed")?.let { LocalDateTime.parse(it) } ?: LocalDateTime.now()
+            val seedZoneOffset = args.hasParameter("offset")?.let { ZoneOffset.of(it) } ?: ZoneOffset.of("-08:00")
+
+            Application(seedDateTime, seedZoneOffset).run(startingNumbers)
         }
     }
 
-    fun run() {
+    fun run(startingNumbers: List<Int>) {
         var iterations = 0
-        var lastNumbersPicked = winningNumbers
+        var lastNumbersPicked = startingNumbers
         var lastCommand = Command(type = CommandType.INVALID)
 
         val simulator = GameSimulator(
@@ -43,7 +58,7 @@ class Application() {
 
             lastCommand = command
 
-            val numbers = when(command.type) {
+            val numbers = when (command.type) {
                 CommandType.NUMBERS -> {
                     if (command.numbers?.count() in 4..6) {
                         lastNumbersPicked = command.numbers ?: listOf()
@@ -56,11 +71,13 @@ class Application() {
                     lastNumbersPicked
                 }
                 CommandType.QUIT -> {
-                    break
+                    println(AnsiCursor.clearScreen)
+                    exitProcess(0)
                 }
                 CommandType.INVALID -> {
+                    println(AnsiCursor.clearScreen)
                     println("Invalid command! Exiting now.")
-                    break
+                    exitProcess(0)
                 }
             }
 
@@ -78,7 +95,7 @@ class Application() {
                     println("Funds remaining \$${simulator.fundsRemaining()}")
                 }
                 GameState.GAME_OVER -> {
-                    println("\n\nGame Over!  After $iterations iteration(s)")
+                    println("Game Over!  After $iterations iteration(s)")
                 }
             }
 

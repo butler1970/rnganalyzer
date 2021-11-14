@@ -4,17 +4,11 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.random.Random
 
-class RandomNumberGenerator {
-    private val rng: Random
-
-    init {
-        val now = LocalDateTime.now().plusHours(12)
-        val seed = now.toEpochSecond(ZoneOffset.of("-08:00"))
-
-        println("Seed = $seed\n\n")
-
-        rng = Random(seed)
-    }
+class RandomNumberGenerator(
+    now: LocalDateTime = LocalDateTime.now(),
+    zoneOffset: ZoneOffset = ZoneOffset.of("-08:00")
+) {
+    private val rng: Random = Random(now.toEpochSecond(zoneOffset))
 
     fun generateSelections(from: Int, to: Int, numberOfSelections: Int): List<Int> {
         val result = mutableListOf<Int>()
