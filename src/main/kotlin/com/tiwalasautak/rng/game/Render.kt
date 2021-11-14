@@ -1,14 +1,12 @@
 package com.tiwalasautak.rng.game
 
-import com.tiwalasautak.rng.grid.Grid
+import com.tiwalasautak.rng.grid.GameGrid
 import com.tiwalasautak.rng.util.twoDecimals
 import java.math.BigDecimal
 
-class Render(start: Int, end: Int, rowSize: Int) {
-    private val grid: Grid = Grid(start = start, end = end, rowSize = rowSize)
-
+class Render {
     fun populateGridAndRender(numbersPicked: List<Int>, selections: List<Int>) {
-        grid.buildGrid()
+        val grid = GameGrid()
 
         numbersPicked.forEach {
             grid.pickNumber(it)

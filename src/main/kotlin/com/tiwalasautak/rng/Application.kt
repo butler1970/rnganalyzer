@@ -13,13 +13,11 @@ import com.tiwalasautak.rng.util.twoDecimals
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import kotlin.system.exitProcess
 
 class Application(private val now: ZonedDateTime) {
-    private val render: Render = Render(1, 80, 10)
+    private val render: Render = Render()
     private val rngAnalyzer: RNGAnalyzer = RNGAnalyzer(now = now)
     private val input: Input = Input()
 
