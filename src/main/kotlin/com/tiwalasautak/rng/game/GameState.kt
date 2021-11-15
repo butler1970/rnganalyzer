@@ -1,5 +1,5 @@
 package com.tiwalasautak.rng.game
 
 enum class GameState {
-    GAME_OVER, FUNDS_AVAILABLE, WINNER
+    INITIAL, GAME_OVER, FUNDS_AVAILABLE, WINNER, QUIT, ERROR
 }

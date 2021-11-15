@@ -22,12 +22,13 @@ class GameSimulator(
     private var funds = initialFunds
     private var payouts: Payouts = Payouts()
 
-    fun run(initialCommand: Command, withDelay: Boolean, startingNumbers: List<Int>) {
+    fun run(initialCommand: Command, withDelay: Long?, startingNumbers: List<Int>): GameState {
         render.clearConsole()
 
         var iterations = 0
         var lastNumbersPicked = startingNumbers
         var lastCommand = initialCommand
+        var gameState: GameState
 
         do {
             val command = getNextCommand(lastCommand = lastCommand, lastNumbersPicked = lastNumbersPicked)
@@ -35,19 +36,23 @@ class GameSimulator(
             when (command.type) {
                 CommandType.QUIT -> {
                     render.renderQuit()
-                    return
+                    return GameState.QUIT
                 }
                 CommandType.INVALID -> {
                     render.renderInvalidCommand()
-                    return
+                    return GameState.ERROR
                 }
                 else -> {}
             }
 
             val numbers = getNumbers(command = command, lastNumbersPicked = lastNumbersPicked)
-            val gameState = nextBet(numbers = numbers, bet = .25.twoDecimals())
+
+            gameState = nextBet(numbers = numbers, bet = .25.twoDecimals())
 
             when (gameState) {
+                GameState.INITIAL, GameState.QUIT, GameState.ERROR -> {
+                    /* Should never reach this code in the initial, quit or error state */
+                }
                 GameState.WINNER -> {
                     render.renderWinnerMessage(fundsRemaining(), iterations)
                 }
@@ -60,7 +65,9 @@ class GameSimulator(
             }
 
             runBlocking {
-                if (withDelay) delay(100)
+                withDelay?.let {
+                    delay(it)
+                }
             }
 
             iterations++
@@ -68,6 +75,8 @@ class GameSimulator(
             lastNumbersPicked = numbers
 
         } while (gameState == GameState.FUNDS_AVAILABLE)
+
+        return gameState
     }
 
     private fun getNextCommand(lastCommand: Command, lastNumbersPicked: List<Int>): Command {
@@ -104,7 +113,7 @@ class GameSimulator(
 
     private fun nextBet(numbers: List<Int>, bet: BigDecimal): GameState {
         render.render(AnsiCursor.clearScreen)
-        render.renderln("\n$now")
+        render.renderln("\nSeed Date/Time: $now")
 
         placeBet(bet)
 
