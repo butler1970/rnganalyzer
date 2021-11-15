@@ -2,26 +2,109 @@ package com.tiwalasautak.rng.game
 
 import com.tiwalasautak.rng.RNGAnalyzer
 import com.tiwalasautak.rng.ansi.AnsiCursor
+import com.tiwalasautak.rng.console.Command
+import com.tiwalasautak.rng.console.CommandType
+import com.tiwalasautak.rng.console.Input
+import com.tiwalasautak.rng.console.Render
 import com.tiwalasautak.rng.util.twoDecimals
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
 class GameSimulator(
-    initialFunds: BigDecimal = 20.twoDecimals(),
+    initialFunds: BigDecimal,
     private val now: ZonedDateTime,
     private val rngAnalyzer: RNGAnalyzer,
-    private val render: Render
+    private val render: Render,
+    private val input: Input
 ) {
     private var funds = initialFunds
     private var payouts: Payouts = Payouts()
 
-    init {
-        print(AnsiCursor.clearScreen)
+    fun run(initialCommand: Command, withDelay: Boolean, startingNumbers: List<Int>) {
+        render.clearConsole()
+
+        var iterations = 0
+        var lastNumbersPicked = startingNumbers
+        var lastCommand = initialCommand
+
+        do {
+            val command = getNextCommand(lastCommand = lastCommand, lastNumbersPicked = lastNumbersPicked)
+
+            when (command.type) {
+                CommandType.QUIT -> {
+                    render.renderQuit()
+                    return
+                }
+                CommandType.INVALID -> {
+                    render.renderInvalidCommand()
+                    return
+                }
+                else -> {}
+            }
+
+            val numbers = getNumbers(command = command, lastNumbersPicked = lastNumbersPicked)
+            val gameState = nextBet(numbers = numbers, bet = .25.twoDecimals())
+
+            when (gameState) {
+                GameState.WINNER -> {
+                    render.renderWinnerMessage(fundsRemaining(), iterations)
+                }
+                GameState.FUNDS_AVAILABLE -> {
+                    render.renderFundsRemaining(fundsRemaining())
+                }
+                GameState.GAME_OVER -> {
+                    render.renderGameOver(iterations)
+                }
+            }
+
+            runBlocking {
+                if (withDelay) delay(100)
+            }
+
+            iterations++
+            lastCommand = command
+            lastNumbersPicked = numbers
+
+        } while (gameState == GameState.FUNDS_AVAILABLE)
     }
 
-    fun nextBet(numbers: List<Int>, bet: BigDecimal): GameState {
-        print(AnsiCursor.clearScreen)
-        println("\n$now")
+    private fun getNextCommand(lastCommand: Command, lastNumbersPicked: List<Int>): Command {
+        return if (lastCommand.type != CommandType.AUTO) {
+            input.getInput(lastNumbersPicked)
+        } else {
+            lastCommand
+        }
+    }
+
+    private fun getNumbers(command: Command, lastNumbersPicked: List<Int>): List<Int> {
+        return when (command.type) {
+            CommandType.INITIAL, CommandType.REPEAT -> {
+                lastNumbersPicked
+            }
+            CommandType.NUMBERS -> {
+                if (command.numbers?.count() in 4..6) {
+                    command.numbers ?: listOf()
+                } else {
+                    lastNumbersPicked
+                }
+            }
+            CommandType.AUTO -> {
+                lastNumbersPicked
+            }
+            CommandType.QUIT -> {
+                lastNumbersPicked
+            }
+            CommandType.INVALID -> {
+                lastNumbersPicked
+            }
+        }
+    }
+
+    private fun nextBet(numbers: List<Int>, bet: BigDecimal): GameState {
+        render.render(AnsiCursor.clearScreen)
+        render.renderln("\n$now")
 
         placeBet(bet)
 
@@ -44,7 +127,7 @@ class GameSimulator(
         }
     }
 
-    fun fundsRemaining(): BigDecimal {
+    private fun fundsRemaining(): BigDecimal {
         return funds
     }
 

@@ -6,8 +6,8 @@ import com.tiwalasautak.rng.table.Table
 class GameGrid: AbstractGrid<GameGridCell>(start = 1, end = 80, rowSize = 10) {
     private val grid: List<List<GameGridCell>> = buildGrid()
 
-    fun renderGrid() {
-        renderGrid(grid)
+    fun renderGrid(): String {
+        return renderGrid(grid)
     }
 
     fun selectNumber(number: Int) {
@@ -22,13 +22,13 @@ class GameGrid: AbstractGrid<GameGridCell>(start = 1, end = 80, rowSize = 10) {
         return GameGridCell(index = index)
     }
 
-    private fun renderGrid(grid: List<List<GameGridCell>>) {
+    private fun renderGrid(grid: List<List<GameGridCell>>): String {
         val table = Table()
 
         grid.forEach { gridRow ->
             table.addRow(gridRow.map { it.toString() }.toTypedArray())
         }
 
-        println(table.buildTable())
+        return table.buildTable()
     }
 }

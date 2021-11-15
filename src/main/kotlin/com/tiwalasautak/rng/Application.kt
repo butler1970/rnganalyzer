@@ -1,26 +1,17 @@
 package com.tiwalasautak.rng
 
-import com.tiwalasautak.rng.ansi.AnsiCursor
 import com.tiwalasautak.rng.console.Command
 import com.tiwalasautak.rng.console.CommandType
 import com.tiwalasautak.rng.console.Input
 import com.tiwalasautak.rng.game.GameSimulator
-import com.tiwalasautak.rng.game.GameState
-import com.tiwalasautak.rng.game.Render
+import com.tiwalasautak.rng.console.Render
 import com.tiwalasautak.rng.util.hasParameter
 import com.tiwalasautak.rng.util.hasSwitch
 import com.tiwalasautak.rng.util.twoDecimals
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
 import java.time.ZonedDateTime
-import kotlin.system.exitProcess
 
-class Application(private val now: ZonedDateTime) {
-    private val render: Render = Render()
-    private val rngAnalyzer: RNGAnalyzer = RNGAnalyzer(now = now)
-    private val input: Input = Input()
-
+class Application {
     companion object {
         private val defaultStartingNumbers = listOf(1, 2, 3, 4, 5)
 
@@ -39,77 +30,27 @@ class Application(private val now: ZonedDateTime) {
             val withDelay = args.hasSwitch("delay")
             val initialFunds = args.hasParameter("funds")?.toBigDecimal()?.twoDecimals() ?: 20.twoDecimals()
 
-            Application(seedDateTime).run(initialCommand, withDelay, initialFunds, startingNumbers)
+            Application().run(
+                now = seedDateTime,
+                initialCommand = initialCommand,
+                withDelay = withDelay,
+                initialFunds = initialFunds,
+                startingNumbers = startingNumbers
+            )
         }
     }
 
-    fun run(initialCommand: Command, withDelay: Boolean, initialFunds: BigDecimal, startingNumbers: List<Int>) {
-        var iterations = 0
-        var lastNumbersPicked = startingNumbers
-        var lastCommand = initialCommand
-
+    fun run(now: ZonedDateTime, initialCommand: Command, withDelay: Boolean, initialFunds: BigDecimal, startingNumbers: List<Int>) {
+        val silentMode = false
+        val render = Render(silentMode)
         val simulator = GameSimulator(
             initialFunds = initialFunds,
             now = now,
-            rngAnalyzer = rngAnalyzer,
-            render = render
+            rngAnalyzer = RNGAnalyzer(now = now),
+            render = render,
+            input = Input(silentMode, render)
         )
 
-        do {
-            val command = if (lastCommand.type != CommandType.AUTO) {
-                input.getInput(lastNumbersPicked)
-            } else {
-                lastCommand
-            }
-
-            lastCommand = command
-
-            val numbers = when (command.type) {
-                CommandType.INITIAL, CommandType.REPEAT -> {
-                    lastNumbersPicked
-                }
-                CommandType.NUMBERS -> {
-                    if (command.numbers?.count() in 4..6) {
-                        lastNumbersPicked = command.numbers ?: listOf()
-                        command.numbers
-                    } else {
-                        lastNumbersPicked
-                    }
-                }
-                CommandType.AUTO -> {
-                    lastNumbersPicked
-                }
-                CommandType.QUIT -> {
-                    println(AnsiCursor.clearScreen)
-                    exitProcess(0)
-                }
-                CommandType.INVALID -> {
-                    println(AnsiCursor.clearScreen)
-                    println("Invalid command! Exiting now.")
-                    exitProcess(0)
-                }
-            }
-
-            val gameState = simulator.nextBet(numbers = numbers ?: lastNumbersPicked, bet = .25.twoDecimals())
-
-            when (gameState) {
-                GameState.WINNER -> {
-                    render.renderWinnerMessage(simulator.fundsRemaining(), iterations)
-                }
-                GameState.FUNDS_AVAILABLE -> {
-                    render.renderFundsRemaining(simulator.fundsRemaining())
-                }
-                GameState.GAME_OVER -> {
-                    render.renderGameOver(iterations)
-                }
-            }
-
-            iterations++
-
-            runBlocking {
-                if (withDelay) delay(100)
-            }
-
-        } while (gameState == GameState.FUNDS_AVAILABLE)
+        simulator.run(initialCommand = initialCommand, withDelay = withDelay, startingNumbers = startingNumbers)
     }
 }
