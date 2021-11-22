@@ -6,10 +6,25 @@ import com.jakewharton.picnic.Table
 class Table {
     private val body = TableSection.Builder()
 
-    fun addRow(cells: Array<String>) {
+    fun addRow(row: Row) {
+        body.addRow(row)
+    }
+
+    fun addRow(gridACells: Array<String>, gridBCells: Array<String>) {
         val rowBuilder = Row.Builder()
 
-        cells.forEach { cell ->
+        gridACells.forEach { cell ->
+            rowBuilder.addCell(cell)
+        }
+
+        rowBuilder.addCell(Cell("") {
+            style = CellStyle {
+                borderTop = false
+                borderBottom = false
+            }
+        })
+
+        gridBCells.forEach { cell ->
             rowBuilder.addCell(cell)
         }
 

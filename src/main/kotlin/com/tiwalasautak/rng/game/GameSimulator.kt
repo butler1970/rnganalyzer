@@ -93,7 +93,7 @@ class GameSimulator(
                 lastNumbersPicked
             }
             CommandType.NUMBERS -> {
-                if (command.numbers?.count() in 4..6) {
+                if (command.numbers?.count() in 3..8) {
                     command.numbers ?: listOf()
                 } else {
                     lastNumbersPicked
@@ -117,16 +117,20 @@ class GameSimulator(
 
         placeBet(bet)
 
-        val selections = rngAnalyzer.generateSelections(1, 80, 20)
-        val crossSection = rngAnalyzer.crossSection(numbers, selections)
+        val currentSelection = rngAnalyzer.getCurrentSelection()
+        val nextSelection = rngAnalyzer.getNextSelection()
+
+        rngAnalyzer.advanceSelection()
+
+        val crossSection = rngAnalyzer.crossSection(numbers, currentSelection)
         val payout = calculatePayout(numbers.count(), crossSection)
 
         updateFunds(payout)
 
-        render.populateGridAndRender(numbers, selections)
+        render.populateGridAndRender(numbers, currentSelection, nextSelection)
         render.renderCrossSection(numbers.count(), crossSection, payout)
         render.renderNumbers(numbers)
-        render.renderSelections(selections)
+        render.renderSelections(currentSelection)
         render.renderNumbersPicked(rngAnalyzer.getNumbersPicked())
 
         return when {
@@ -151,9 +155,12 @@ class GameSimulator(
 
     private fun calculatePayout(numbers: Int, crossSection: Int): BigDecimal {
         return when (numbers) {
+            3 -> payouts.calculatePayoutFor3Spot(crossSection)
             4 -> payouts.calculatePayoutFor4Spot(crossSection)
             5 -> payouts.calculatePayoutFor5Spot(crossSection)
             6 -> payouts.calculatePayoutFor6Spot(crossSection)
+            7 -> payouts.calculatePayoutFor7Spot(crossSection)
+            8 -> payouts.calculatePayoutFor8Spot(crossSection)
             else -> throw Exception("$numbers not supported!")
         }.twoDecimals()
     }

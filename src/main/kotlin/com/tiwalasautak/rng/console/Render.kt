@@ -16,15 +16,19 @@ class Render(
         render(AnsiCursor.topLeft)
     }
 
-    fun populateGridAndRender(numbersPicked: List<Int>, selections: List<Int>) {
+    fun populateGridAndRender(numbersPicked: List<Int>, currentSelection: List<Int>, nextSelection: List<Int>) {
         val grid = GameGrid()
 
         numbersPicked.forEach {
             grid.pickNumber(it)
         }
 
-        selections.forEach {
-            grid.selectNumber(it)
+        currentSelection.forEach {
+            grid.selectNumberA(it)
+        }
+
+        nextSelection.forEach {
+            grid.selectNumberB(it)
         }
 
         renderln(grid.renderGrid())
@@ -56,7 +60,7 @@ class Render(
     }
 
     fun renderSelections(selections: List<Int>) {
-        renderln("Selections: ${selections.sorted().joinToString()}\n")
+        renderln("Selections: ${selections.joinToString()}\n")
     }
 
     fun renderWinnerMessage(fundsRemaining: BigDecimal, iterations: Int) {
